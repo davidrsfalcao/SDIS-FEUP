@@ -41,7 +41,10 @@ public class Client {
 
 		System.out.println("Request enviado: "+ request);
 
-
+		packet = new DatagramPacket(buf, buf.length);
+		socket.receive(packet);
+		String res = new String(packet.getData(), 0, packet.getLength());
+		System.out.println("Resposta: " + res);
 
 		// fechar socket
 		socket.close();

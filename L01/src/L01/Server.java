@@ -11,8 +11,6 @@ public class Server {
 	private static HashMap<String, String> plates;
 
 	public static void main(String[] args) throws IOException {
-		System.out.print("Entrei!\nl");
-		System.out.print(args[0]);
 
 		port = Integer.parseInt(args[0]);
 		DatagramSocket socket = new DatagramSocket(port);
@@ -24,10 +22,12 @@ public class Server {
 		byte[] nbuf = packet.getData();
 		String dString = new String(nbuf);
 		String[] arrayString = dString.split(":");
+
 		if (arrayString[0].compareTo("register") == 0 ) {
 			if (plates.containsKey(arrayString[1]))
-			plates.put(arrayString[1], arrayString[2]);
-		} else if (arrayString[0].compareTo("lookup") == 0) {
+				plates.put(arrayString[1], arrayString[2]);
+		}
+		else if (arrayString[0].compareTo("lookup") == 0) {
 			if (plates.containsKey(arrayString[1])) {
 				arrayString[2] = plates.get(arrayString[1]);
 				//response = arrayString[2];
