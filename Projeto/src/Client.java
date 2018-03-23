@@ -10,12 +10,12 @@ public class Client {
 
 	private static String multicastAddressStr;
 	private static int multicastPort;
-
+	
 	public static void main(String[] args) throws IOException {
 		if (args.length < 2) {
 			System.out.println("Usage:");
 			System.out
-					.println("\tjava Client <multicastIP> <multicastPort> ");
+			.println("\tjava Client <multicastIP> <multicastPort> ");
 
 			return;
 		}
@@ -30,18 +30,18 @@ public class Client {
 
 		int i = 0;
 		while (true) {
-				 // Receive the information and print it.
-				 byte[] buf = new byte[256];
-				 DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
-				 multicastSocket.receive(msgPacket);
+			// Receive the information and print it.
+			byte[] buf = new byte[256];
+			DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
+			multicastSocket.receive(msgPacket);
 
-				 String msg = new String(buf, 0, buf.length);
-				 System.out.println("Socket 1 received msg: " + msg);
-				 i++;
+			String msg = new String(buf, 0, buf.length);
+			System.out.println("Socket 1 received msg: " + msg);
+			i++;
 
-				 if(i > 45645){
-					 break;
-				 }
+			if(i > 45645){
+				break;
+			}
 		}
 
 		multicastSocket.leaveGroup(group);

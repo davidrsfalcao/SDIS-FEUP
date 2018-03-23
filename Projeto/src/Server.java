@@ -25,8 +25,6 @@ public class Server {
 		multicastAddressStr = args[0];
 		multicastPort = Integer.parseInt(args[1]);
 
-
-
 		// open multicast socket
 		MulticastSocket multicastSocket = new MulticastSocket(multicastPort);
 		multicastSocket.setTimeToLive(1);
