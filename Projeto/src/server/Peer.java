@@ -13,6 +13,9 @@ public class Peer {
     private String mdrAddress;
     private int mdrPort;
 
+    public void setMdbPort(int mdbPort) {
+        this.mdbPort = mdbPort;
+    }
 
     public static void main(String[] args){
 
