@@ -5,18 +5,24 @@ import java.net.MulticastSocket;
 import java.util.Arrays;
 
 public class Channel {
-  Thread thread;
+  Peer peer;
   public MulticastSocket socket;
   public static InetAddress address;
-	public static int multicastPort;
+  public static int multicastPort;
 
-  public Channel(String address, int port)  throws IOException, InterruptedException  {
-    //multicastAddressStr = args[0];
+  public Channel(String address, int port, Peer peer)  throws IOException, InterruptedException  {
+    this.peer = peer;
     this.multicastPort = port;
-    MulticastSocket multicastSocket = new MulticastSocket(this.multicastPort);
-		multicastSocket.setTimeToLive(1);
-		InetAddress multicastAddress = InetAddress.getByName(address);
-		//multicastSocket.joinGroup(multicastAddress);
+    this.socket = new MulticastSocket(this.multicastPort);
+    this.socket.setTimeToLive(1);
+    this.address = InetAddress.getByName(address);
   }
 
+  public MulticastSocket getSocket() {
+      return socket;
+  }
+
+  public static InetAddress getAddress() {
+      return address;
+  }
 }

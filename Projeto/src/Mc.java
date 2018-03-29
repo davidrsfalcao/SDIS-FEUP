@@ -2,19 +2,26 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 
 public class Mc extends Channel implements Runnable {
-  public Mc(String mcAddress, int mcPort) throws IOException, InterruptedException {
-		super(mcAddress, mcPort);
-		//this.thread = new McThread();
-	}
+
+  public Mc(String mcAddress, int mcPort, Peer peer) throws IOException, InterruptedException {
+		super(mcAddress, mcPort, peer);
+  }
 
   public void run() {
-			System.out.println("Listening the MC channel...");
+    System.out.println("Listening the MC channel...");
 
-      //multicastSocket.joinGroup(group);
-		/*	while(i<1000) {
-        println("thread"+i);
-      }*/
-      System.out.println("thread 1");
+    try {
+      super.getSocket().joinGroup(super.getAddress());
+
+      while(true) {
+
+      }
+    }
+    catch (IOException error) {
+      error.printStackTrace();
+    }
+
+    //super.getSocket().leaveGroup(super.getAddress());
   }
 
   public byte[] receiveMessage() throws IOException {

@@ -2,19 +2,23 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 
 public class Mdb extends Channel implements Runnable {
-  public Mdb(String mdbAddress, int mdbPort) throws IOException, InterruptedException {
-		super(mdbAddress, mdbPort);
-		//this.thread = new McThread();
+  public Mdb(String mdbAddress, int mdbPort, Peer peer) throws IOException, InterruptedException {
+		super(mdbAddress, mdbPort, peer);
 	}
 
   public void run() {
-			System.out.println("Listening the Mdb channel...");
+    System.out.println("Listening the Mdb channel...");
 
-      //multicastSocket.joinGroup(group);
-		/*	while(i<1000) {
-        println("thread"+i);
-      }*/
-      System.out.println("thread 2");
+    try {
+      super.getSocket().joinGroup(super.getAddress());
+      while (true) {
+
+      }
+    }
+    catch (IOException error) {
+      error.printStackTrace();
+    }
+    //super.getSocket().leaveGroup(super.getAddress());
   }
 
   public byte[] receiveMessage() throws IOException {
