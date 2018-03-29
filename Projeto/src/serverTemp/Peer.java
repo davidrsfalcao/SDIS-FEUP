@@ -6,9 +6,9 @@ import java.net.MulticastSocket;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class Peer {
+public class Peer implements RMI  {
 
-    private int serverID;
+    public static int serverID;
     private static Peer peer;
     private static Thread backup;
     private static Thread delete;
@@ -29,6 +29,13 @@ public class Peer {
     private String mdrAddress;
     private int mdrPort;
 
+    ///////////
+    private static int serviceAccessPoint;
+
+    private static int MAXIMUM_SPACE = -1;
+    private static int USED_SPACE = 0;
+    ////////////////
+
     public static void main(String[] args) throws IOException, InterruptedException {
 
         peer = new Peer();
@@ -39,7 +46,7 @@ public class Peer {
         peer.initVars(args);
         peer.openChannels();
 
-        peer.startPeer();
+        //peer.startPeer();
     }
 
     private boolean validArgs(String[] args){
@@ -77,19 +84,19 @@ public class Peer {
         }
     }
 
-    private void startPeer() throws IOException, InterruptedException {
+    /*private void startPeer() throws IOException, InterruptedException {
         String read = new String();
         while (read != "end") {
             read = this.peer.receiveProtocol();
             this.peer.startProtocol(read);
         }
-    }
+    }*/
 
     private String receiveProtocol() {
         return null;
     }
 
-    private void startProtocol(String read) throws IOException, InterruptedException {
+    /*private void startProtocol(String read) throws IOException, InterruptedException {
         String[] control = read.split(" ");
         if (control[0] == "Backup") {
             try {
@@ -124,5 +131,36 @@ public class Peer {
                 System.out.println("Couldn't create the backupProtocol!");
             }
         }
+    }*/
+
+    @Override
+    public void backup(String version, String senderId, String path, int replicationDegree) {
+
+        /*String fileId = Utils.getFileId(new File(path));
+        fileIds.put(path, fileId);
+        requestsFileReplication.put(fileId, replicationDegree);*/
+
+        // TODO : Manager.backupFile(path, replicationDegree);
+    }
+
+    @Override
+    public void restore(String version, String senderId, String path) {
+
+    }
+
+    @Override
+    public void delete(String version, String senderId, String path) {
+
+    }
+
+    @Override
+    public void reclaim(String version, String senderId, int space) {
+        /*MAXIMUM_SPACE = space;
+        freeUpSpace();*/
+    }
+
+    @Override
+    public String state() {
+        return null;
     }
 }
