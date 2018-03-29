@@ -135,28 +135,58 @@ public class Peer implements RMI  {
 
     @Override
     public void backup(String version, String senderId, String path, int replicationDegree) {
-
-        /*String fileId = Utils.getFileId(new File(path));
-        fileIds.put(path, fileId);
-        requestsFileReplication.put(fileId, replicationDegree);*/
-
-        // TODO : Manager.backupFile(path, replicationDegree);
+        try {
+            backup = new Thread(new BackupProtocol(version, senderId, path, replicationDegree, this.peer));
+            backup.start();
+        }
+        catch (IOException error) {
+            System.out.println("Couldn't create the backupProtocol!");
+        }
+        catch (InterruptedException error) {
+            System.out.println("Interrupted!");
+        }
     }
 
     @Override
     public void restore(String version, String senderId, String path) {
-
+        try {
+            restore = new Thread(new RestoreProtocol(version, senderId, path, this.peer));
+            restore.start();
+        }
+        catch (IOException error) {
+            System.out.println("Couldn't create the backupProtocol!");
+        }
+        catch (InterruptedException error) {
+            System.out.println("Interrupted!");
+        }
     }
 
     @Override
     public void delete(String version, String senderId, String path) {
-
+        try {
+            delete = new Thread(new DeleteProtocol(version, senderId, path, this.peer));
+            delete.start();
+        }
+        catch (IOException error) {
+            System.out.println("Couldn't create the backupProtocol!");
+        }
+        catch (InterruptedException error) {
+            System.out.println("Interrupted!");
+        }
     }
 
     @Override
     public void reclaim(String version, String senderId, int space) {
-        /*MAXIMUM_SPACE = space;
-        freeUpSpace();*/
+        try {
+            spaceReclaim = new Thread(new SReclaimProtocol(version, senderId, space, this.peer));
+            spaceReclaim.start();
+        }
+        catch (IOException error) {
+            System.out.println("Couldn't create the backupProtocol!");
+        }
+        catch (InterruptedException error) {
+            System.out.println("Interrupted!");
+        }
     }
 
     @Override
