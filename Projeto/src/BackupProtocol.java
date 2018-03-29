@@ -6,11 +6,17 @@ import java.util.Arrays;
 
 public class BackupProtocol implements Runnable {
     Peer peer;
-    String[] protocol;
+    int replicationDegree;
 
-    public BackupProtocol(String[] protocol, Peer peer)  throws IOException, InterruptedException  {
+    public BackupProtocol(String version, String senderId, String path, int replicationDegree, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
-        this.protocol = protocol;
+        this.replicationDegree = replicationDegree;
+
+        /*String fileId = Utils.getFileId(new File(path));
+        fileIds.put(path, fileId);
+        requestsFileReplication.put(fileId, replicationDegree);*/
+
+        // TODO : Manager.backupFile(path, replicationDegree);
     }
 
     public void run() {

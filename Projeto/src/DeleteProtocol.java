@@ -6,14 +6,13 @@ import java.util.Arrays;
 
 public class DeleteProtocol implements Runnable {
     Peer peer;
-    String[] protocol;
 
-    public DeleteProtocol(String[] protocol, Peer peer)  throws IOException, InterruptedException  {
+    public DeleteProtocol(String version, String senderId, String path, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
-        this.protocol = protocol;
     }
 
     public void run() {
 
     }
+
 }

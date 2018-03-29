@@ -6,11 +6,12 @@ import java.util.Arrays;
 
 public class SReclaimProtocol implements Runnable {
     Peer peer;
-    String[] protocol;
 
-    public SReclaimProtocol(String[] protocol, Peer peer)  throws IOException, InterruptedException  {
+    public SReclaimProtocol(String version, String senderId, int space, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
-        this.protocol = protocol;
+
+        /*MAXIMUM_SPACE = space;
+        freeUpSpace();*/
     }
 
     public void run() {
