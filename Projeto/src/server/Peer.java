@@ -1,8 +1,15 @@
 package server;
 
-public class Peer {
+import utils.RMI;
+
+import java.rmi.registry.LocateRegistry;
+import java.rmi.registry.Registry;
+import java.rmi.server.UnicastRemoteObject;
+
+public class Peer{
 
     private int serverID;
+    private int serviceAccessPoint;
 
     private String mcAddress;
     private int mcPort;
@@ -26,12 +33,26 @@ public class Peer {
 
         peer.initVars(args);
 
+        ThreadPeer tread = new ThreadPeer(peer.serverID, peer.serviceAccessPoint, peer.mcAddress, peer.mcPort, peer.mdbAddress, peer.mdbPort, peer.mdrAddress, peer.mdrPort);
+        tread.start();
+
+        try {
+            RMI rmiObject = (RMI) UnicastRemoteObject.exportObject(tread, peer.serviceAccessPoint);
+            LocateRegistry.createRegistry(peer.serviceAccessPoint);
+            Registry registry = LocateRegistry.getRegistry();
+            registry.rebind(Integer.toString(peer.serverID), rmiObject);
+            System.err.println("Server ready");
+        } catch (Exception e) {
+            System.err.println("Server exception: " + e.toString());
+            e.printStackTrace();
+        }
+
     }
 
 
     private boolean validArgs(String[] args){
-        if (args.length != 7) {
-            System.out.println("Usage: javan server.Peer  <ServerID> <MC address> <MC port> <MDB address> <MDB port> <MDR address> <MDR port>");
+        if (args.length != 8) {
+            System.out.println("Usage: java server.Peer <ServerID> <ServiceAccessPoint> <MC address> <MC port> <MDB address> <MDB port> <MDR address> <MDR port>");
             return false;
         }
 
@@ -50,6 +71,5 @@ public class Peer {
         mdrAddress = args[5];
         mdrPort = Integer.parseInt(args[6]);;
     }
-
 
 }
