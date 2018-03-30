@@ -71,8 +71,8 @@ public class Peer implements RMI  {
     private void openChannels() throws IOException, InterruptedException {
         /*
         try {
-            mcChannel = new Thread(new Mc(this.mcAddress, this.mcPort, this.peer));
-            mdbChannel = new Thread(new Mdb(this.mcAddress, this.mcPort, this.peer));
+            mcChannel = new Thread(new channels.Mc(this.mcAddress, this.mcPort, this.peer));
+            mdbChannel = new Thread(new channels.Mdb(this.mcAddress, this.mcPort, this.peer));
 
             mcChannel.start();
             mdbChannel.start();
@@ -99,7 +99,7 @@ public class Peer implements RMI  {
         String[] control = read.split(" ");
         if (control[0] == "Backup") {
             try {
-                backup = new Thread(new BackupProtocol(control, this.peer));
+                backup = new Thread(new protocols.BackupProtocol(control, this.peer));
                 backup.start();
             }
             catch (IOException error) {
@@ -107,7 +107,7 @@ public class Peer implements RMI  {
             }
         } else if (control[0] == "Delete") {
             try {
-                backup = new Thread(new DeleteProtocol(control, this.peer));
+                backup = new Thread(new protocols.DeleteProtocol(control, this.peer));
                 backup.start();
             }
             catch (IOException error) {
@@ -115,7 +115,7 @@ public class Peer implements RMI  {
             }
         } else if (control[0] == "Restore") {
             try {
-                backup = new Thread(new RestoreProtocol(control, this.peer));
+                backup = new Thread(new protocols.RestoreProtocol(control, this.peer));
                 backup.start();
             }
             catch (IOException error) {
@@ -123,7 +123,7 @@ public class Peer implements RMI  {
             }
         } else if (control[0] == "SpaceReclaim") {
             try {
-                backup = new Thread(new SReclaimProtocol(control, this.peer));
+                backup = new Thread(new protocols.ReclaimProtocol(control, this.peer));
                 backup.start();
             }
             catch (IOException error) {
@@ -136,7 +136,7 @@ public class Peer implements RMI  {
     public void backup(String version, String senderId, String path, int replicationDegree) {
         /*
         try {
-            backup = new Thread(new BackupProtocol(version, senderId, path, replicationDegree, this.peer));
+            backup = new Thread(new protocols.BackupProtocol(version, senderId, path, replicationDegree, this.peer));
             backup.start();
         }
         catch (IOException error) {
@@ -151,7 +151,7 @@ public class Peer implements RMI  {
     @Override
     public void restore(String version, String senderId, String path) {
 /*        try {
-            restore = new Thread(new RestoreProtocol(version, senderId, path, this.peer));
+            restore = new Thread(new protocols.RestoreProtocol(version, senderId, path, this.peer));
             restore.start();
         }
         catch (IOException error) {
@@ -165,7 +165,7 @@ public class Peer implements RMI  {
     @Override
     public void delete(String version, String senderId, String path) {
 /*        try {
-            delete = new Thread(new DeleteProtocol(version, senderId, path, this.peer));
+            delete = new Thread(new protocols.DeleteProtocol(version, senderId, path, this.peer));
             delete.start();
         }
         catch (IOException error) {
@@ -180,7 +180,7 @@ public class Peer implements RMI  {
     public void reclaim(String version, String senderId, int space) {
         /*
         try {
-            spaceReclaim = new Thread(new SReclaimProtocol(version, senderId, space, this.peer));
+            spaceReclaim = new Thread(new protocols.ReclaimProtocol(version, senderId, space, this.peer));
             spaceReclaim.start();
         }
         catch (IOException error) {

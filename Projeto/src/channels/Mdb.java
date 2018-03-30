@@ -1,3 +1,8 @@
+package channels;
+
+import channels.Channel;
+import server.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 
@@ -7,7 +12,7 @@ public class Mdb extends Channel implements Runnable {
 	}
 
   public void run() {
-    System.out.println("Listening the Mdb channel...");
+    System.out.println("Listening the channels.Mdb channel...");
 
     try {
       super.getSocket().joinGroup(super.getAddress());

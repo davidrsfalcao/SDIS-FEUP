@@ -1,3 +1,8 @@
+package channels;
+
+import channels.Channel;
+import server.Peer;
+
 import java.io.IOException;
 import java.net.DatagramPacket;
 
