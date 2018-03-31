@@ -3,10 +3,8 @@ package channels;
 import server.Peer;
 
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Arrays;
 
 public class Channel {
   Peer peer;
@@ -23,10 +21,10 @@ public class Channel {
   }
 
   public MulticastSocket getSocket() {
-      return socket;
+    return socket;
   }
 
   public static InetAddress getAddress() {
-      return address;
+    return address;
   }
 }

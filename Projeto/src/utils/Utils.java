@@ -1,14 +1,16 @@
 package utils;
 
-import javax.xml.bind.DatatypeConverter;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
+import java.net.InetAddress;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.net.UnknownHostException;
 
 public class Utils {
 
-    public static String getFileId(File file){
+   /* public static String getFileId(File file){
 
         long lastModified = file.lastModified();
 
@@ -35,6 +37,12 @@ public class Utils {
         }
 
         return hash;
+    }*/
+
+    public static String getIpAdress() throws UnknownHostException {
+        InetAddress IP=InetAddress.getLocalHost();
+
+        return IP.getHostAddress();
     }
 
 }

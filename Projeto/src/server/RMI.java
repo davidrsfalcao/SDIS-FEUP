@@ -2,17 +2,16 @@ package server;
 
 import java.rmi.Remote;
 import java.rmi.RemoteException;
+import java.io.IOException;
 
-public interface RMI extends Remote {
+public interface RMI extends Remote{
+    public void backup(String version, String senderId, String path, int replicationDegree) throws RemoteException, IOException, InterruptedException ;
 
-    void backup(String version, String senderId, String path, int replicationDegree) throws RemoteException;
+    public void restore(String version, String senderId, String path) throws RemoteException, IOException, InterruptedException ;
 
-    void restore(String version, String senderId, String path) throws RemoteException;
+    public void delete(String version, String senderId, String path) throws RemoteException, IOException, InterruptedException ;
 
-    void delete(String version, String senderId, String path) throws RemoteException;
+    public void reclaim(String version, String senderId, int space) throws RemoteException, IOException, InterruptedException ;
 
-    void reclaim(String version, String senderId, int space) throws RemoteException;
-
-    String state() throws RemoteException;
-
+    public String state() throws RemoteException, IOException, InterruptedException ;
 }

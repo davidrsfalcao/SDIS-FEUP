@@ -1,6 +1,5 @@
 package channels;
 
-import channels.Channel;
 import server.Peer;
 
 import java.io.IOException;
@@ -9,7 +8,7 @@ import java.net.DatagramPacket;
 public class Mc extends Channel implements Runnable {
 
   public Mc(String mcAddress, int mcPort, Peer peer) throws IOException, InterruptedException {
-		super(mcAddress, mcPort, peer);
+    super(mcAddress, mcPort, peer);
   }
 
   public void run() {
@@ -48,3 +47,4 @@ public class Mc extends Channel implements Runnable {
     this.socket.send(msgPacket);
   }
 }
+
