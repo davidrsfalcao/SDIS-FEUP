@@ -1,43 +1,54 @@
 package utils;
 
 
+import javax.xml.bind.DatatypeConverter;
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
 
 public class Utils {
 
-   /* public static String getFileId(File file){
+    public static String getFileId(File file){
 
         long lastModified = file.lastModified();
 
         String tmp = file.getName()+ Long.toString(lastModified);
-        return DatatypeConverter.printHexBinary(sha256(tmp));
+
+        byte[] tmp1 = sha256(tmp).getBytes(Charset.forName("UTF-8"));;
+
+        return DatatypeConverter.printHexBinary(tmp1);
     }
+    
 
-    private static byte[] sha256(String file){
+    public static final String sha256(String str) {
+        try {
+            MessageDigest sha = MessageDigest.getInstance("SHA-256");
 
-        MessageDigest message = null;
+            byte[] hash = sha.digest(str.getBytes(StandardCharsets.UTF_8));
 
-        try{
-            message = MessageDigest.getInstance("SHA-256");
-        } catch (NoSuchAlgorithmException e) {
+            StringBuffer hexStringBuffer = new StringBuffer();
+
+            for (int i = 0; i < hash.length; i++) {
+                String hex = Integer.toHexString(0xff & hash[i]);
+
+                if (hex.length() == 1)
+                    hexStringBuffer.append('0');
+
+                hexStringBuffer.append(hex);
+            }
+
+            return hexStringBuffer.toString();
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
-        byte[] hash = new byte[0];
-
-        try{
-            hash = message.digest(file.getBytes("UTF-8"));
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-
-        return hash;
-    }*/
+        return null;
+    }
 
     public static String getIpAdress() throws UnknownHostException {
         InetAddress IP=InetAddress.getLocalHost();
