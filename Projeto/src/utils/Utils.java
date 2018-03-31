@@ -1,7 +1,7 @@
 package utils;
 
 
-import javax.xml.bind.DatatypeConverter;
+
 import java.io.File;
 import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
@@ -19,11 +19,9 @@ public class Utils {
 
         String tmp = file.getName()+ Long.toString(lastModified);
 
-        byte[] tmp1 = sha256(tmp).getBytes(Charset.forName("UTF-8"));;
-
-        return DatatypeConverter.printHexBinary(tmp1);
+        return sha256(tmp);
     }
-    
+
 
     public static final String sha256(String str) {
         try {
