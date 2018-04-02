@@ -50,7 +50,7 @@ public class Header {
 
     @Override
     public String toString(){
-        String final_string = "", tmp = "", SPACE = "  ";
+        String final_string = "", tmp = "", SPACE = " ";
 
         /* <MessageType> <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF> */
 

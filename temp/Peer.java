@@ -1,8 +1,7 @@
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.MulticastSocket;
+import java.rmi.RemoteException;
 import java.util.Arrays;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -19,8 +18,8 @@ public class Peer implements RMI  {
     private static Thread restore;
     private static Thread spaceReclaim;
 
-    private ConcurrentHashMap< String, String > chunksSaved; //< FileId, ChunkNo>
-    private ConcurrentHashMap< String, String[] > initiatorVerifier; //< FileId, arrayServerIdsWithChunkNo>
+    private ConcurrentHashMap< String, String[] > chunksSaved = new ConcurrentHashMap<>(); //< FileId, ChunkNo[]>
+    private ConcurrentHashMap< String, ConcurrentHashMap< Integer, String[] > > initiatorVerifier = new ConcurrentHashMap<>(); //< FileId, < ChunkNo, arrayServerIds> >
 
     private String mcAddress;
     private int mcPort;
@@ -47,18 +46,27 @@ public class Peer implements RMI  {
         if(!peer.validArgs(args))
             return;
 
+        peer.initVars(args);
+
         try {
             RMI rmiObject = (RMI) UnicastRemoteObject.exportObject(peer, peer.serviceAccessPoint);
-            LocateRegistry.createRegistry(1099);
-            Registry registry = LocateRegistry.getRegistry();
-            registry.rebind(Integer.toString(peer.serverID), rmiObject);
+            Registry reg = LocateRegistry.getRegistry(1099);
+
+            try {
+                reg.rebind(Integer.toString(peer.serverID), rmiObject);
+            }
+            catch (RemoteException error) {
+                reg = LocateRegistry.createRegistry(1099);
+                reg.rebind(Integer.toString(peer.serverID), rmiObject); //Já nao falha
+            }
+
             System.err.println("Server ready");
         } catch (Exception e) {
             System.err.println("Server exception: " + e.toString());
             e.printStackTrace();
         }
 
-        peer.initVars(args);
+        System.out.println(Integer.toString(peer.serverID));
         Thread[] threads = peer.openChannels();
         threads[0].join();
         threads[1].join();
@@ -90,7 +98,7 @@ public class Peer implements RMI  {
     private Thread[] openChannels() throws IOException, InterruptedException {
         try {
             mcChannel = new Thread(new Mc(this.mcAddress, this.mcPort, this.peer));
-            mdbChannel = new Thread(new Mdb(this.mcAddress, this.mcPort, this.peer));
+            mdbChannel = new Thread(new Mdb(this.mdbAddress, this.mdbPort, this.peer));
 
             mcChannel.start();
             mdbChannel.start();
@@ -111,18 +119,10 @@ public class Peer implements RMI  {
 
     @Override
     public void backup(String version, String senderId, String path, int replicationDegree) {
-        System.out.println("Fode-te Oco, RMI está a funcionar!");
+        System.out.println("Backup Protocol received");
 
-        try {
-            backup = new Thread(new BackupProtocol(version, senderId, path, replicationDegree, this.peer));
-            backup.start();
-        }
-        catch (IOException error) {
-            System.out.println("Couldn't create the backupProtocol!");
-        }
-        catch (InterruptedException error) {
-            System.out.println("Interrupted!");
-        }
+            this.backup = new Thread(new BackupProtocol(version, senderId, "./files/test1Mb.db", replicationDegree, this.peer));
+            this.backup.start();
     }
 
     @Override
@@ -132,7 +132,7 @@ public class Peer implements RMI  {
             restore.start();
         }
         catch (IOException error) {
-            System.out.println("Couldn't create the backupProtocol!");
+            System.out.println("");
         }
         catch (InterruptedException error) {
             System.out.println("Interrupted!");
@@ -146,7 +146,7 @@ public class Peer implements RMI  {
             delete.start();
         }
         catch (IOException error) {
-            System.out.println("Couldn't create the backupProtocol!");
+            System.out.println("");
         }
         catch (InterruptedException error) {
             System.out.println("Interrupted!");
@@ -160,7 +160,7 @@ public class Peer implements RMI  {
             spaceReclaim.start();
         }
         catch (IOException error) {
-            System.out.println("Couldn't create the backupProtocol!");
+            System.out.println("");
         }
         catch (InterruptedException error) {
             System.out.println("Interrupted!");
@@ -175,8 +175,7 @@ public class Peer implements RMI  {
 
     public void manageHashMaps(String fileId) {
         if (!this.initiatorVerifier.containsKey(fileId)) {
-            String[] nova = new String[10];
-            this.initiatorVerifier.put(fileId, nova);
+            this.initiatorVerifier.put(fileId, new ConcurrentHashMap<>());
         }
     }
 
@@ -200,5 +199,13 @@ public class Peer implements RMI  {
 
     public static int getServerID() {
         return serverID;
+    }
+
+    public ConcurrentHashMap<String, String[]> getChunksSaved() {
+        return chunksSaved;
+    }
+
+    public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String[]>> getInitiatorVerifier() {
+        return initiatorVerifier;
     }
 }
