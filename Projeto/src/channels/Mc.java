@@ -1,6 +1,7 @@
 package channels;
 
 import server.Peer;
+import utils.Manager;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -18,7 +19,33 @@ public class Mc extends Channel implements Runnable {
       super.getSocket().joinGroup(super.getAddress());
 
       while(true) {
+        byte[] msg = receiveMessage();
 
+        String message = new String(msg);
+
+        String[] message_split = message.split(" ");
+
+        switch (message_split[0]){
+          case "DELETE":
+            int senderId = Integer.parseInt(message_split[2]);
+
+            if(this.getPeer().getServerID() != senderId){
+              String fileId = message_split[3];
+              try {
+                Manager.deleteFile(fileId,this.getPeer());
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
+            }
+
+            break;
+
+          case "STORED":
+            break;
+
+        }
+        
       }
     }
     catch (IOException error) {
@@ -44,7 +71,9 @@ public class Mc extends Channel implements Runnable {
     String msg = "Sent message no 1";
 
     DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(), msg.getBytes().length, this.address, this.multicastPort);
-    this.socket.send(msgPacket);
+    socket.send(msgPacket);
   }
+
+
 }
 

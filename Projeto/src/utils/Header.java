@@ -88,57 +88,5 @@ public class Header {
         return final_string;
     }
 
-    @Override
-    public boolean equals(Object object){
 
-        if(object == null)
-            return false;
-
-        if(getClass() != object.getClass())
-            return false;
-
-        Header header = (Header) object;
-
-        /* Same Message Type */
-        if(messageType.equals(null) && !header.getMessageType().equals(null))
-            return false;
-
-        if(!messageType.equals(header.getMessageType()))
-            return false;
-
-        /* Same SenderId */
-        if(senderId.equals(null) && !header.getSenderId().equals(null))
-            return false;
-
-        if(!senderId.equals(header.getSenderId()))
-            return false;
-
-        /* Same FileId*/
-        if(fileId.equals(null) && !header.getFileId().equals(null))
-            return false;
-
-        if(!fileId.equals(header.getFileId()))
-            return false;
-
-        /* Same ChunkNo */
-        if(chunkNo.equals(null) && !header.getChunkNo().equals(null))
-            return false;
-
-        if(!chunkNo.equals(header.getChunkNo()))
-            return false;
-
-        return true;
-    }
-
-    @Override
-    public int hashCode(){
-
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + ((chunkNo == null) ? 0 : chunkNo.hashCode());
-        result = prime * result + ((fileId == null) ? 0 : fileId.hashCode());
-        result = prime * result + ((senderId == null) ? 0 : senderId.hashCode());
-        result = prime * result + ((messageType == null) ? 0 : messageType.hashCode());
-        return result;
-    }
 }

@@ -23,8 +23,8 @@ public class Peer implements RMI  {
     private static Thread restore;
     private static Thread spaceReclaim;
 
-    private ConcurrentHashMap< String, String[] > chunksSaved = new ConcurrentHashMap<>(); //< FileId, ChunkNo[]>
-    private ConcurrentHashMap< String, ConcurrentHashMap< Integer, String[] > > initiatorVerifier = new ConcurrentHashMap<>(); //< FileId, < ChunkNo, arrayServerIds> >
+    public ConcurrentHashMap< String, String[] > chunksSaved = new ConcurrentHashMap<>(); //< FileId, ChunkNo[]>
+    public ConcurrentHashMap< String, ConcurrentHashMap< Integer, String[] > > initiatorVerifier = new ConcurrentHashMap<>(); //< FileId, < ChunkNo, arrayServerIds> >
 
     private String mcAddress;
     private int mcPort;
@@ -207,4 +207,14 @@ public class Peer implements RMI  {
     public ConcurrentHashMap<String, ConcurrentHashMap<Integer, String[]>> getInitiatorVerifier() {
         return initiatorVerifier;
     }
+
+    public boolean fileHasBeenBackedUp(String fileID){
+
+        if(!chunksSaved.containsKey(fileID)){
+            return false;
+        }
+
+        return true;
+    }
+
 }
