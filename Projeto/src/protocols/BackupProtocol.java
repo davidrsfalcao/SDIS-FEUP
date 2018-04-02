@@ -26,13 +26,13 @@ public class BackupProtocol implements Runnable {
 
     public static ConcurrentHashMap<String, Integer> requestsFileReplication;
 
-    public BackupProtocol(String version, String senderId, String path, int replicationDegree, Peer peer)  throws IOException, InterruptedException  {
+    public BackupProtocol(String version, int senderId, String path, int replicationDegree, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
         this.replicationDegree = replicationDegree;
 
-        //this.fileId = Utils.getFileId(new File(path));
-        //peer.manageHashMaps(this.fileId);
-        //requestsFileReplication.put(fileId, replicationDegree);
+        this.fileId = Utils.getFileId(new File(path));
+        peer.manageHashMaps(this.fileId);
+        requestsFileReplication.put(fileId, replicationDegree);
 
 
         //open mdbChannel//

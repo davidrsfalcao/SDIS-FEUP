@@ -139,7 +139,7 @@ public class TestApp {
 		switch(sub_protocol){
 			case "BACKUP":
 				try {
-					peer.backup("1.0", "1", opnd_1, opnd_2);
+					peer.backup("1.0", peer_ap, opnd_1, opnd_2);
 				} catch (Exception e) {
 					System.err.println("Server exception: " + e.toString());
 					e.printStackTrace();
@@ -149,7 +149,7 @@ public class TestApp {
 
 			case "DELETE":
 				try {
-					peer.delete("1.0", "1", opnd_1);
+					peer.delete("1.0", peer_ap, opnd_1);
 				} catch (Exception e) {
 					System.err.println("Server exception: " + e.toString());
 					e.printStackTrace();
@@ -159,7 +159,7 @@ public class TestApp {
 
 			case "RESTORE":
 				try {
-					peer.restore("1.0", "1", opnd_1);
+					peer.restore("1.0", peer_ap, opnd_1);
 				} catch (Exception e) {
 					System.err.println("Server exception: " + e.toString());
 					e.printStackTrace();
@@ -169,7 +169,7 @@ public class TestApp {
 
 			case "RECLAIM":
 				try {
-					peer.reclaim("1.0", "1", opnd_2);
+					peer.reclaim("1.0", peer_ap, opnd_2);
 				} catch (Exception e) {
 					System.err.println("Server exception: " + e.toString());
 					e.printStackTrace();

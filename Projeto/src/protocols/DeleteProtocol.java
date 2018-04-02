@@ -8,7 +8,7 @@ import java.io.IOException;
 public class DeleteProtocol implements Runnable {
     Peer peer;
 
-    public DeleteProtocol(String version, String senderId, String path, Peer peer)  throws IOException, InterruptedException  {
+    public DeleteProtocol(String version, int senderId, String path, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
     }
 

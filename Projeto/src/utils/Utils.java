@@ -1,14 +1,9 @@
 package utils;
 
-
-
 import java.io.File;
-import java.io.UnsupportedEncodingException;
 import java.net.InetAddress;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 import java.net.UnknownHostException;
 
 public class Utils {

@@ -114,7 +114,7 @@ public class Peer implements RMI  {
     }
 
     @Override
-    public void backup(String version, String senderId, String path, int replicationDegree) {
+    public void backup(String version, int senderId, String path, int replicationDegree) {
         System.out.println("Fode-te Oco, RMI está a funcionar!");
 
         try {
@@ -130,7 +130,7 @@ public class Peer implements RMI  {
     }
 
     @Override
-    public void restore(String version, String senderId, String path) {
+    public void restore(String version, int senderId, String path) {
         try {
             restore = new Thread(new RestoreProtocol(version, senderId, path, this.peer));
             restore.start();
@@ -144,7 +144,7 @@ public class Peer implements RMI  {
     }
 
     @Override
-    public void delete(String version, String senderId, String path) {
+    public void delete(String version, int senderId, String path) {
         try {
             delete = new Thread(new DeleteProtocol(version, senderId, path, this.peer));
             delete.start();
@@ -158,7 +158,7 @@ public class Peer implements RMI  {
     }
 
     @Override
-    public void reclaim(String version, String senderId, int space) {
+    public void reclaim(String version, int senderId, int space) {
         try {
             spaceReclaim = new Thread(new ReclaimProtocol(version, senderId, space, this.peer));
             spaceReclaim.start();

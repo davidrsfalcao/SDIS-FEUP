@@ -11,7 +11,7 @@ import java.util.Arrays;
 public class ReclaimProtocol implements Runnable {
     Peer peer;
 
-    public ReclaimProtocol(String version, String senderId, int space, Peer peer)  throws IOException, InterruptedException  {
+    public ReclaimProtocol(String version, int senderId, int space, Peer peer)  throws IOException, InterruptedException  {
         this.peer = peer;
 
         /*MAXIMUM_SPACE = space;
