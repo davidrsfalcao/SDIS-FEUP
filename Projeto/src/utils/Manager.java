@@ -1,11 +1,9 @@
 package utils;
-
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+
 
 public class Manager {
 
@@ -16,7 +14,7 @@ public class Manager {
     }
 
     public static void saveChunk(String chunkNo, String fileId, byte[] chunk) {
-        File file = new File(directory,fileId + chunkNo);
+        File file = new File(directory,fileId + "_" + chunkNo);
         file.getParentFile().mkdirs();
         try {
             FileOutputStream outFile = new FileOutputStream(file);
@@ -28,8 +26,8 @@ public class Manager {
     }
 
     public static int deleteChunk(int chunkNo, String fileId) {
-        int size = (int) new File(directory + fileId + chunkNo).length();
-        Path path = Paths.get(directory + fileId + chunkNo);
+        int size = (int) new File(directory + fileId + "_" + chunkNo).length();
+        Path path = Paths.get(directory + fileId + "_" + chunkNo);
         try {
             Files.delete(path);
             return size;
@@ -41,7 +39,7 @@ public class Manager {
 
     public static byte[] getChunk(int chunkNo, String fileId) {
 
-        Path path = Paths.get(directory + fileId + chunkNo);
+        Path path = Paths.get(directory + fileId + "_" + chunkNo);
 
         try {
             return Files.readAllBytes(path);

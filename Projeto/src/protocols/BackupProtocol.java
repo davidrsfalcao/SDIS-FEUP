@@ -1,54 +1,75 @@
 package protocols;
 
 import server.Peer;
-import utils.Constants;
 import utils.Header;
 import utils.Utils;
+import static utils.Constants.MAXCHUNKSIZE;
+import static utils.Constants.PUTCHUNK;
 
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Arrays;
 import java.io.File;
 import java.util.concurrent.ConcurrentHashMap;
+import java.io.FileInputStream;
 
 public class BackupProtocol implements Runnable {
     Peer peer;
     int replicationDegree;
-    byte[] chunk;
     String fileId;
+
+    private FileInputStream file;
 
     String mdbAdress;
     int mdbPort;
     public MulticastSocket socket;
     public static InetAddress address;
 
-    public static ConcurrentHashMap<String, Integer> requestsFileReplication;
+    public static ConcurrentHashMap<String, Integer> requestsFileReplication = new ConcurrentHashMap<>();
 
-    public BackupProtocol(String version, int senderId, String path, int replicationDegree, Peer peer)  throws IOException, InterruptedException  {
+    public BackupProtocol(String version, int senderId, String path, int replicationDegree, Peer peer) {
         this.peer = peer;
-        this.replicationDegree = replicationDegree;
+        this.replicationDegree = 1; //TODO
+        File temp = new File(path);
 
-        this.fileId = Utils.getFileId(new File(path));
+        this.fileId = Utils.getFileId(temp);
         peer.manageHashMaps(this.fileId);
-        requestsFileReplication.put(fileId, replicationDegree);
-
+        //requestsFileReplication.put(fileId, replicationDegree);
 
         //open mdbChannel//
-        mdbAdress = peer.getMdbAddress();
-        mdbPort = peer.getMdbPort();
-        socket = new MulticastSocket(mdbPort);
-        socket.setTimeToLive(1);
-        address = InetAddress.getByName(mdbAdress);
+        try {
+            this.file = new FileInputStream(path);
 
-        // TODO : Manager.backupFile(path, replicationDegree);
+            mdbAdress = peer.getMdbAddress();
+            mdbPort = peer.getMdbPort();
+            socket = new MulticastSocket(mdbPort);
+            socket.setTimeToLive(1);
+            address = InetAddress.getByName(mdbAdress);
+        }
+        catch (IOException error) {
+            System.err.println("BackupProtocol exception: " + error.toString());
+        }
+
     }
 
     public void run() {
-        byte[] body = readFile();
-        byte[] chunk = createChunk(body);
-        sendPutchunk(chunk);
+        try {
+            byte[] body = new byte[MAXCHUNKSIZE];
+            int numberBytes = 0;
+            int chunkNumber = 0;
+            while ( ( numberBytes = this.file.read(body, 0, MAXCHUNKSIZE) ) != -1) {
+                byte[] chunk = createChunk(body, chunkNumber);
+                System.out.println(chunk.length);
+                sendPutchunk(chunk);
+
+                chunkNumber++;
+                body = new byte[MAXCHUNKSIZE];
+            }
+        }
+        catch (IOException error) {
+            error.printStackTrace();
+        }
     }
 
     private void error() {
@@ -63,7 +84,7 @@ public class BackupProtocol implements Runnable {
         return null;
     }
 
-    private void sendPutchunk(byte[] body) {
+    private void sendPutchunk(byte[] chunk) {
         int i = 0;
         int time = 1000;
 
@@ -71,19 +92,22 @@ public class BackupProtocol implements Runnable {
             this.socket.joinGroup(this.address);
 
             while (i < 5) {
-                DatagramPacket msgPacket = new DatagramPacket(this.chunk, this.chunk.length, this.address, this.mdbPort);
+                DatagramPacket msgPacket = new DatagramPacket(chunk, chunk.length, this.address, this.mdbPort);
                 this.socket.send(msgPacket);
 
-                Thread.sleep(time);
+                Thread.sleep(2000);
 
+                break;
                 /*if (peer.verifyReplication()) {
                     break;
                 }
                 else {
                     i++;
-                    time *= 2;
+                    time += 1000;
                 }*/
             }
+
+            this.socket.leaveGroup(this.address);
         }
         catch (IOException error) {
             error.printStackTrace();
@@ -98,9 +122,12 @@ public class BackupProtocol implements Runnable {
         end();
     }
 
-    private byte[] createChunk(byte[] body) {
-        Header tempHeader = new Header(Constants.PUTCHUNK, "1.0", String.valueOf(peer.getServerID()), this.fileId, "1", String.valueOf(this.replicationDegree));
+    private byte[] createChunk(byte[] body, int chunkNumber) {
+        Header tempHeader = new Header(PUTCHUNK, "1.0", String.valueOf(peer.getServerID()), this.fileId, String.valueOf(chunkNumber), String.valueOf(this.replicationDegree));
         String headerTemp = tempHeader.toString();
+
+        System.out.println(headerTemp);
+
         byte[] header = headerTemp.getBytes();
         byte[] c = new byte[header.length + body.length];
         System.arraycopy(header, 0, c, 0, header.length);

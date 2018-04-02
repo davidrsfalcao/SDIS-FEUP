@@ -7,7 +7,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 
 public class Channel {
-  Peer peer;
+  public Peer peer;
   public MulticastSocket socket;
   public static InetAddress address;
   public static int multicastPort;
@@ -26,5 +26,9 @@ public class Channel {
 
   public static InetAddress getAddress() {
     return address;
+  }
+
+  public Peer getPeer() {
+    return peer;
   }
 }

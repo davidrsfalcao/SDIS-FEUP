@@ -54,7 +54,7 @@ public class Header {
 
     @Override
     public String toString(){
-        String final_string = "", tmp = "", SPACE = "  ";
+        String final_string = "", tmp = "", SPACE = " ";
 
         /* <MessageType> <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF> */
 
@@ -132,8 +132,6 @@ public class Header {
 
     @Override
     public int hashCode(){
-
-        //TODO: verificar
 
         final int prime = 31;
         int result = 1;

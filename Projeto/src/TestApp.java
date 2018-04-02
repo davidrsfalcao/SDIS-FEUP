@@ -11,7 +11,7 @@ import java.rmi.registry.Registry;
 public class TestApp {
 
 	private static String IP;
-	private int peer_ap;
+	private static int peer_ap;
 	private String sub_protocol;
 	private String opnd_1;
 	private int opnd_2;
@@ -38,7 +38,9 @@ public class TestApp {
 			for (String name : registry.list()) {
 				System.out.println("NAME - " + name);
 			}
-			peer = (RMI) registry.lookup("0");
+			String name = "" + peer_ap;
+
+			peer = (RMI) registry.lookup(name);
 			System.err.println("Server ready");
 		} catch (Exception e) {
 			System.err.println("ERROR - "+ e.getMessage());
