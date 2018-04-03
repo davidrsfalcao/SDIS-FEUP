@@ -5,7 +5,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class TestApp{
 
-    private static String peer_ap;
+    private static int peer_ap;
     private static String IP;
     private String sub_protocol;
     private String opnd_1;
@@ -25,7 +25,7 @@ public class TestApp{
         }
 
         System.out.println(IP);
-        peer_ap = args[0];
+        peer_ap = Integer.parseInt(args[0]);
         RMI peer = null;
 
         try {
@@ -33,19 +33,12 @@ public class TestApp{
             for (String name : registry.list()) {
                 System.out.println("NAME - " + name);
             }
-            peer = (RMI) registry.lookup(peer_ap);
+            peer = (RMI) registry.lookup(peer_ap+"");
             System.err.println("Server ready");
         } catch (Exception e) {
             System.err.println("ERROR - "+ e.getMessage());
             e.printStackTrace();
         }
-
-        /*try {
-            peer.backup("1.0", "1", "/path", 3);
-        } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
-            e.printStackTrace();
-        }*/
 
         testApp.init(peer);
     }
@@ -58,7 +51,7 @@ public class TestApp{
         }
 
         try {
-            peer_ap = args[0];
+            Integer.parseInt(args[0]);
         } catch (NumberFormatException e) {
             System.out.println("Invalid peer_ap!\n");
             System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>\n");
@@ -132,7 +125,7 @@ public class TestApp{
         switch(sub_protocol){
             case "BACKUP":
                 try {
-                    peer.backup("1.0", peer_ap, opnd_1, opnd_2);
+                    peer.backup("1.0", peer_ap+"", opnd_1, opnd_2);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();
@@ -150,7 +143,7 @@ public class TestApp{
 
             case "RESTORE":
                 try {
-                    peer.restore("1.0", peer_ap, opnd_1);
+                    peer.restore("1.0", peer_ap+"", opnd_1);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();
@@ -159,7 +152,7 @@ public class TestApp{
 
             case "RECLAIM":
                 try {
-                    peer.reclaim("1.0", peer_ap, opnd_2);
+                    peer.reclaim("1.0", peer_ap+"", opnd_2);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();

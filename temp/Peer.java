@@ -1,5 +1,6 @@
 import java.io.IOException;
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.rmi.RemoteException;
 import java.util.Arrays;
@@ -18,17 +19,19 @@ public class Peer implements RMI  {
     private static Thread restore;
     private static Thread spaceReclaim;
 
-    private ConcurrentHashMap< String, String[] > chunksSaved = new ConcurrentHashMap<>(); //< FileId, ChunkNo[]>
-    private ConcurrentHashMap< String, ConcurrentHashMap< Integer, String[] > > initiatorVerifier = new ConcurrentHashMap<>(); //< FileId, < ChunkNo, arrayServerIds> >
+    public ConcurrentHashMap< String, String[] > chunksSaved = new ConcurrentHashMap<>(); //< FileId, ChunkNo[]>
+    public ConcurrentHashMap< String, ConcurrentHashMap< Integer, String[] > > initiatorVerifier = new ConcurrentHashMap<>(); //< FileId, < ChunkNo, arrayServerIds> >
 
     private String mcAddress;
     private int mcPort;
     private static Thread mcChannel;
+    private static Mc mc;
 
     private String mdbAddress;
 
     private int mdbPort;
     private static Thread mdbChannel;
+    private static Mdb mdb;
 
     private String mdrAddress;
     private int mdrPort;
@@ -97,8 +100,10 @@ public class Peer implements RMI  {
 
     private Thread[] openChannels() throws IOException, InterruptedException {
         try {
-            mcChannel = new Thread(new Mc(this.mcAddress, this.mcPort, this.peer));
-            mdbChannel = new Thread(new Mdb(this.mdbAddress, this.mdbPort, this.peer));
+            mc = new Mc(this.mcAddress, this.mcPort, this.peer);
+            mdb = new Mdb(this.mdbAddress, this.mdbPort, this.peer);
+            mcChannel = new Thread(mc);
+            mdbChannel = new Thread(mdb);
 
             mcChannel.start();
             mdbChannel.start();
@@ -140,17 +145,11 @@ public class Peer implements RMI  {
     }
 
     @Override
-    public void delete(String version, String senderId, String path) {
-        try {
-            delete = new Thread(new DeleteProtocol(version, senderId, path, this.peer));
-            delete.start();
-        }
-        catch (IOException error) {
-            System.out.println("");
-        }
-        catch (InterruptedException error) {
-            System.out.println("Interrupted!");
-        }
+    public void delete(String version, int senderId, String path) {
+        System.out.println("Delete Protocol received");
+        delete = new Thread(new DeleteProtocol(version, senderId, path, this.peer));
+        delete.start();
+
     }
 
     @Override
@@ -179,6 +178,15 @@ public class Peer implements RMI  {
         }
     }
 
+    public boolean fileHasBeenBackedUp(String fileID){
+
+        if(!chunksSaved.containsKey(fileID)){
+            return false;
+        }
+
+        return true;
+    }
+
 
     ////Getters///
     public String getMdbAddress() {
@@ -189,12 +197,28 @@ public class Peer implements RMI  {
         return mdbPort;
     }
 
+    public MulticastSocket getMdbSocket() {
+        return mdb.getSocket();
+    }
+
+    public InetAddress getInetAddMdb() {
+        return mdb.getAddress();
+    }
+
     public String getMcAddress() {
         return mcAddress;
     }
 
     public int getMcPort() {
         return mcPort;
+    }
+
+    public MulticastSocket getMcSocket() {
+        return mc.getSocket();
+    }
+
+    public InetAddress getInetAddMc() {
+        return mc.getAddress();
     }
 
     public static int getServerID() {
