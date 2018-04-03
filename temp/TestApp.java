@@ -15,8 +15,17 @@ public class TestApp{
 
         TestApp testApp  = new TestApp();
 
-        if(!testApp .validArgs(args))
-            return;
+        //if(!testApp .validArgs(args))
+       //     return;
+        System.out.println(args[0]);
+        String[] ip_port = args[0].substring(2, args[0].lastIndexOf('/')).split(":");
+        String ip = ip_port[0];
+        int port = 1099;
+        if (ip_port.length > 1) {
+            port = Integer.parseInt(ip_port[1]);
+        }
+        String id = args[0].substring(args[0].lastIndexOf('/')+1);
+        System.out.println("IP = " + ip + "\nPort = " + port + "\nID = " + id);
 
         try {
             IP = Utils.getIpAdress();
@@ -25,19 +34,19 @@ public class TestApp{
         }
 
         System.out.println(IP);
-        peer_ap = Integer.parseInt(args[0]);
         RMI peer = null;
 
         try {
-            Registry registry = LocateRegistry.getRegistry(IP, 1099);
+            Registry registry = LocateRegistry.getRegistry(ip, 1099);
             for (String name : registry.list()) {
                 System.out.println("NAME - " + name);
             }
-            peer = (RMI) registry.lookup(peer_ap+"");
+            peer = (RMI) registry.lookup(id);
             System.err.println("Server ready");
         } catch (Exception e) {
             System.err.println("ERROR - "+ e.getMessage());
             e.printStackTrace();
+            return;
         }
 
         testApp.init(peer);
