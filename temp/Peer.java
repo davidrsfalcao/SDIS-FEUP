@@ -50,9 +50,9 @@ public class Peer implements RMI  {
             return;
 
         peer.initVars(args);
-
+        RMI rmiObject;
         try {
-            RMI rmiObject = (RMI) UnicastRemoteObject.exportObject(peer, peer.serviceAccessPoint);
+            rmiObject = (RMI) UnicastRemoteObject.exportObject(peer, peer.serviceAccessPoint);
             Registry reg = LocateRegistry.getRegistry(1099);
 
             try {
@@ -126,7 +126,7 @@ public class Peer implements RMI  {
     public void backup(String version, String senderId, String path, int replicationDegree) {
         System.out.println("Backup Protocol received");
 
-            this.backup = new Thread(new BackupProtocol(version, senderId, "./files/test1Mb.db", replicationDegree, this.peer));
+            this.backup = new Thread(new BackupProtocol(version, senderId, path, replicationDegree, this.peer));
             this.backup.start();
     }
 

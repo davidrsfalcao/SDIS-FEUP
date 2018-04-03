@@ -15,8 +15,9 @@ public class TestApp{
 
         TestApp testApp  = new TestApp();
 
-        //if(!testApp .validArgs(args))
-       //     return;
+        if(!testApp .validArgs(args))
+           return;
+
         System.out.println(args[0]);
         String[] ip_port = args[0].substring(2, args[0].lastIndexOf('/')).split(":");
         String ip = ip_port[0];
@@ -59,16 +60,9 @@ public class TestApp{
             return false;
         }
 
-        try {
-            Integer.parseInt(args[0]);
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid peer_ap!\n");
-            System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>\n");
-            return false;
-        }
 
         sub_protocol = args[1].toUpperCase();
-
+    System.out.println("PICAS");
         switch(sub_protocol){
             case "BACKUP":
                 if (args.length != 4){
