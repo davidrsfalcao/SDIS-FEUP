@@ -24,7 +24,7 @@ public class Manager {
         }
     }
 
-    public static int deleteChunk(int chunkNo, String fileId) {
+    public static int deleteChunk(String chunkNo, String fileId) {
         int size = (int) new File(directory + fileId + "_" + chunkNo).length();
         Path path = Paths.get(directory + fileId + "_" + chunkNo);
         try {
@@ -34,6 +34,21 @@ public class Manager {
             e.printStackTrace();
         }
         return 0;
+    }
+
+    public static void deleteFile(String fileId, Peer peer) throws IOException {
+        if (!peer.chunksSaved.containsKey(fileId)) {
+            return;
+        }
+
+        String[] chunks = peer.chunksSaved.get(fileId);
+
+        for(int i=0; i< chunks.length; i++){
+            deleteChunk(chunks[i],fileId);
+        }
+
+
+        peer.chunksSaved.remove(fileId);
     }
 
     public static byte[] getChunk(int chunkNo, String fileId) {
@@ -47,6 +62,18 @@ public class Manager {
         }
 
         return null;
+    }
+
+    public static boolean fileExists(String path) {
+        File file = new File(path);
+
+        return file.exists() && file.isFile();
+    }
+
+    public static final void deleteFile(String path) {
+        File file = new File(path);
+
+        file.delete();
     }
 
 

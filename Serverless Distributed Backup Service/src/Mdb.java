@@ -12,9 +12,10 @@ public class Mdb extends Channel implements Runnable {
   public MulticastSocket socketMc;
   public static InetAddress addressMc;
 
+  public int sizeMsg;
+
   public Mdb(String mdbAddress, int mdbPort, Peer peer) throws IOException, InterruptedException {
 		super(mdbAddress, mdbPort, peer);
-        responceMc();
 	}
 
   public void run() {
@@ -29,22 +30,8 @@ public class Mdb extends Channel implements Runnable {
         Random r = new Random();
         int time = r.nextInt(400);
 
-        Runnable store = new Runnable() {
-          @Override
-          public void run()
-          {
-            System.out.println("Store Thread started...");
-            int half = divideChunk(chunk);
-            System.out.println("Body starts here - " + half);
-            String header = new String(chunk, 0, half);
-            byte[] body = new byte[Constants.MAXCHUNKSIZE];
-            System.arraycopy(chunk, half, body, 0,  Constants.MAXCHUNKSIZE);
-            storeChunk(header, body);
-          }
-        };
-
         ScheduledExecutorService scheduledPool = Executors.newScheduledThreadPool(1);
-        scheduledPool.schedule(store, time, TimeUnit.MILLISECONDS);
+        scheduledPool.schedule(new Store(chunk, this.sizeMsg, this), time, TimeUnit.MILLISECONDS);
       }
     }
     catch (IOException error) {
@@ -55,35 +42,14 @@ public class Mdb extends Channel implements Runnable {
   }
 
   public byte[] receiveMessage() throws IOException {
-    System.out.println("Receiving message...");
+    System.out.println("Receiving Mdb message...");
     byte[] buf = new byte[65000];
     DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
     this.socket.receive(msgPacket);
-
-    System.out.println("Message received!");
+    this.sizeMsg = msgPacket.getLength();
+    System.out.println("Message received in Mdb!");
 
     return buf;
-  }
-
-  public void sendMessage() throws IOException {
-    String msg = "Sent message no 1";
-
-    DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(), msg.getBytes().length, this.address, this.multicastPort);
-    this.socket.send(msgPacket);
-  }
-
-  public void responceMc() {
-
-    try {
-      mcAdress = peer.getMcAddress();
-      mcPort = peer.getMcPort();
-      socketMc = new MulticastSocket(mcPort);
-      socketMc.setTimeToLive(1);
-      addressMc = InetAddress.getByName(mcAdress);
-    }
-    catch (IOException error) {
-      error.printStackTrace();
-    }
   }
 
   public int divideChunk(byte[] chunk) {
@@ -91,13 +57,17 @@ public class Mdb extends Channel implements Runnable {
     return Utils.separation(chunk, crlf.getBytes());
   }
 
-  public void storeChunk(String header, byte[] body) {
+  public void storeChunk(String header, byte[] bodyTemp, int sizeTemp) {
+
+    sizeTemp -= header.length();
+    byte[] body = new byte[sizeTemp];
+    System.arraycopy(bodyTemp, 0, body, 0, sizeTemp);
     String[] splittedHeader = header.split(" ");
     System.out.println("Message Type - " + splittedHeader[0]);
-    /*if ( splittedHeader[2].equals( Integer.toString(peer.getServerID()) ) ) {
+    if ( splittedHeader[2].equals( Integer.toString(peer.getServerID()) ) ) {
       System.out.println("Not storing (same Peer) !");
       return;
-    }*/
+    }
 
     if ( this.getPeer().getChunksSaved().containsKey(splittedHeader[3]) ) {
       String[] chunkNumbersTemp = this.getPeer().getChunksSaved().get(splittedHeader[3]);
@@ -132,18 +102,52 @@ public class Mdb extends Channel implements Runnable {
   }
 
   private void sendStored(String[] splittedHeader) {
-    //Create stored
-    byte[] stored = new byte[2];
+    byte[] stored = createConfirmation(splittedHeader);
     try {
-      this.socket.joinGroup(this.addressMc);
+      System.out.println("Sent Stored!");
 
-      DatagramPacket msgPacket = new DatagramPacket(stored, stored.length, this.addressMc, this.mcPort);
-      this.socket.send(msgPacket);
+      DatagramPacket msgPacket = new DatagramPacket(stored, stored.length, this.peer.getInetAddMc(), this.peer.getMcPort() );
+      this.peer.getMdbSocket().send(msgPacket);
 
-      this.socket.leaveGroup(this.addressMc);
+      System.out.println("Stored send!");
     }
     catch (IOException error) {
       error.printStackTrace();
     }
   }
+
+  private byte[] createConfirmation(String[] splittedHeader) {
+    Header tempHeader = new Header(Constants.STORED, "1.0", splittedHeader[2], splittedHeader[3], splittedHeader[4], splittedHeader[5]);
+    String headerTemp = tempHeader.toStringStored();
+
+    System.out.println(headerTemp);
+
+    byte[] stored = headerTemp.getBytes();
+
+    return stored;
+  }
 }
+
+class Store implements Runnable {
+
+  private byte[] chunk;
+  private int sizeC;
+  private Mdb mdb;
+
+  public Store (byte[] chunk, int sizeC, Mdb inst) {
+    this.chunk = chunk;
+    this.sizeC = sizeC;
+    this.mdb = inst;
+  }
+
+  public void run()
+  {
+    System.out.println("Store Thread started...");
+    int half = mdb.divideChunk(chunk);
+    System.out.println("Body starts here - " + half);
+    String header = new String(chunk, 0, half);
+    byte[] body = new byte[Constants.MAXCHUNKSIZE];
+    System.arraycopy(chunk, half, body, 0,  Constants.MAXCHUNKSIZE);
+    mdb.storeChunk(header, chunk, sizeC);
+  }
+};

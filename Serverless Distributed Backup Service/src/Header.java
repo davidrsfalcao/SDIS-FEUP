@@ -84,6 +84,34 @@ public class Header {
         return final_string;
     }
 
+    public String toStringStored(){
+        String final_string = "", tmp = "", SPACE = " ";
+
+        /* <MessageType> <Version> <SenderId> <FileId> <ChunkNo> <ReplicationDeg> <CRLF> */
+
+        tmp = this.getMessageType();
+        if(tmp != null)
+            final_string += tmp + SPACE;
+
+        tmp = this.getVersion();
+        if(tmp != null)
+            final_string += tmp + SPACE;
+
+        tmp = this.getSenderId();
+        if(tmp != null)
+            final_string += tmp + SPACE;
+
+        tmp = this.getFileId();
+        if(tmp != null)
+            final_string += tmp + SPACE;
+
+        tmp = this.getChunkNo();
+        if(tmp != null)
+            final_string += tmp + SPACE;
+
+        return final_string;
+    }
+
     @Override
     public boolean equals(Object object){
 

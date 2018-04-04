@@ -5,7 +5,7 @@ import java.rmi.server.UnicastRemoteObject;
 
 public class TestApp{
 
-    private static String peer_ap;
+    private static int peer_ap;
     private static String IP;
     private String sub_protocol;
     private String opnd_1;
@@ -16,7 +16,17 @@ public class TestApp{
         TestApp testApp  = new TestApp();
 
         if(!testApp .validArgs(args))
-            return;
+           return;
+
+        System.out.println(args[0]);
+        String[] ip_port = args[0].substring(2, args[0].lastIndexOf('/')).split(":");
+        String ip = ip_port[0];
+        int port = 1099;
+        if (ip_port.length > 1) {
+            port = Integer.parseInt(ip_port[1]);
+        }
+        String id = args[0].substring(args[0].lastIndexOf('/')+1);
+        System.out.println("IP = " + ip + "\nPort = " + port + "\nID = " + id);
 
         try {
             IP = Utils.getIpAdress();
@@ -25,27 +35,20 @@ public class TestApp{
         }
 
         System.out.println(IP);
-        peer_ap = args[0];
         RMI peer = null;
 
         try {
-            Registry registry = LocateRegistry.getRegistry(IP, 1099);
+            Registry registry = LocateRegistry.getRegistry(ip, 1099);
             for (String name : registry.list()) {
                 System.out.println("NAME - " + name);
             }
-            peer = (RMI) registry.lookup(peer_ap);
+            peer = (RMI) registry.lookup(id);
             System.err.println("Server ready");
         } catch (Exception e) {
             System.err.println("ERROR - "+ e.getMessage());
             e.printStackTrace();
+            return;
         }
-
-        /*try {
-            peer.backup("1.0", "1", "/path", 3);
-        } catch (Exception e) {
-            System.err.println("Server exception: " + e.toString());
-            e.printStackTrace();
-        }*/
 
         testApp.init(peer);
     }
@@ -57,16 +60,9 @@ public class TestApp{
             return false;
         }
 
-        try {
-            peer_ap = args[0];
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid peer_ap!\n");
-            System.out.println("Usage: java TestApp <peer_ap> <sub_protocol> <opnd_1> <opnd_2>\n");
-            return false;
-        }
 
         sub_protocol = args[1].toUpperCase();
-
+    System.out.println("PICAS");
         switch(sub_protocol){
             case "BACKUP":
                 if (args.length != 4){
@@ -132,7 +128,7 @@ public class TestApp{
         switch(sub_protocol){
             case "BACKUP":
                 try {
-                    peer.backup("1.0", peer_ap, opnd_1, opnd_2);
+                    peer.backup("1.0", peer_ap+"", opnd_1, opnd_2);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();
@@ -150,7 +146,7 @@ public class TestApp{
 
             case "RESTORE":
                 try {
-                    peer.restore("1.0", peer_ap, opnd_1);
+                    peer.restore("1.0", peer_ap+"", opnd_1);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();
@@ -159,7 +155,7 @@ public class TestApp{
 
             case "RECLAIM":
                 try {
-                    peer.reclaim("1.0", peer_ap, opnd_2);
+                    peer.reclaim("1.0", peer_ap+"", opnd_2);
                 } catch (Exception e) {
                     System.err.println("Server exception: " + e.toString());
                     e.printStackTrace();

@@ -1,3 +1,4 @@
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -16,51 +17,51 @@ public class BackupProtocol implements Runnable {
     String fileId;
 
     private FileInputStream file;
+    private File f;
 
     String mdbAdress;
     int mdbPort;
     public MulticastSocket socket;
     public static InetAddress address;
 
+    String mcAdress;
+    int mcPort;
+    public MulticastSocket socketMc;
+    public static InetAddress addressMc;
+
     public static ConcurrentHashMap<String, Integer> requestsFileReplication = new ConcurrentHashMap<>();
 
     public BackupProtocol(String version, String senderId, String path, int replicationDegree, Peer peer) {
         this.peer = peer;
         this.replicationDegree = 1; //TODO
-        File temp = new File(path);
+        f = new File(path);
 
-        this.fileId = Utils.getFileId(temp);
+        this.fileId = Utils.getFileId(f);
         peer.manageHashMaps(this.fileId);
         //requestsFileReplication.put(fileId, replicationDegree);
 
-        //open mdbChannel//
         try {
             this.file = new FileInputStream(path);
-
-            mdbAdress = peer.getMdbAddress();
-            mdbPort = peer.getMdbPort();
-            socket = new MulticastSocket(mdbPort);
-            socket.setTimeToLive(1);
-            address = InetAddress.getByName(mdbAdress);
         }
-        catch (IOException error) {
-            System.err.println("BackupProtocol exception: " + error.toString());
+        catch (FileNotFoundException error) {
+            System.err.println("File not found!" + error.toString());
         }
-
     }
 
     public void run() {
         try {
-            byte[] body = new byte[Constants.MAXCHUNKSIZE];
+            byte[] bodytemp = new byte[Constants.MAXCHUNKSIZE];
             int numberBytes = 0;
             int chunkNumber = 0;
-            while ( ( numberBytes = this.file.read(body, 0, Constants.MAXCHUNKSIZE) ) != -1) {
+            while ( (numberBytes = this.file.read(bodytemp, 0, Constants.MAXCHUNKSIZE)) != -1 ) {
+                System.out.println(numberBytes);
+                byte[] body = new byte[numberBytes];
+                System.arraycopy(bodytemp, 0, body, 0, numberBytes);
                 byte[] chunk = createChunk(body, chunkNumber);
                 System.out.println(chunk.length);
                 sendPutchunk(chunk);
-
                 chunkNumber++;
-                body = new byte[Constants.MAXCHUNKSIZE];
+                bodytemp = new byte[Constants.MAXCHUNKSIZE];
             }
         }
         catch (IOException error) {
@@ -76,22 +77,16 @@ public class BackupProtocol implements Runnable {
         System.out.println("Ended!!");
     }
 
-    private byte[] readFile() {
-        return null;
-    }
-
     private void sendPutchunk(byte[] chunk) {
         int i = 0;
         int time = 1000;
 
         try {
-            this.socket.joinGroup(this.address);
-
             while (i < 5) {
-                DatagramPacket msgPacket = new DatagramPacket(chunk, chunk.length, this.address, this.mdbPort);
-                this.socket.send(msgPacket);
+                DatagramPacket msgPacket = new DatagramPacket(chunk, chunk.length, this.peer.getInetAddMdb(), this.peer.getMdbPort());
+                this.peer.getMdbSocket().send(msgPacket);
 
-                Thread.sleep(2000);
+                Thread.sleep(1000);
 
                 break;
                 /*if (peer.verifyReplication()) {
@@ -102,8 +97,6 @@ public class BackupProtocol implements Runnable {
                     time += 1000;
                 }*/
             }
-
-            this.socket.leaveGroup(this.address);
         }
         catch (IOException error) {
             error.printStackTrace();

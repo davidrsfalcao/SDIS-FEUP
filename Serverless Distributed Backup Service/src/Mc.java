@@ -14,7 +14,40 @@ public class Mc extends Channel implements Runnable {
       super.getSocket().joinGroup(super.getAddress());
 
       while(true) {
+        byte[] msg = receiveMessage();
 
+        String message = new String(msg);
+
+        String[] message_split = message.split(" ");
+
+        switch (message_split[0]){
+          case "DELETE":
+            int senderId = Integer.parseInt(message_split[2]);
+
+            if(this.getPeer().getServerID() != senderId){
+              String fileId = message_split[3];
+              try {
+                  System.out.println(fileId);
+                  Manager.deleteFile(fileId,this.getPeer());
+              } catch (IOException e) {
+                e.printStackTrace();
+              }
+
+            }
+
+            break;
+
+          case "STORED":
+            System.out.println(message);
+            System.out.println(message_split[2]);
+            System.out.println(this.getPeer().getServerID());
+            if (message_split[2].equals(""+this.getPeer().getServerID())) {
+              System.out.println("Sou eu que trato!");
+              initVerifier(message_split[3], message_split[4]);
+            }
+            break;
+
+        }
       }
     }
     catch (IOException error) {
@@ -25,13 +58,12 @@ public class Mc extends Channel implements Runnable {
   }
 
   public byte[] receiveMessage() throws IOException {
-    byte[] buf = new byte[256];
+    System.out.println("Receiving Mc message...");
+    byte[] buf = new byte[100];
     DatagramPacket msgPacket = new DatagramPacket(buf, buf.length);
     this.socket.receive(msgPacket);
 
-    //String msg = new String(buf, 0, buf.length);
-    //System.out.println("Socket 1 received msg: " + msg);
-    //i++;
+    System.out.println("Message received in Mc!");
 
     return buf;
   }
@@ -41,5 +73,12 @@ public class Mc extends Channel implements Runnable {
 
     DatagramPacket msgPacket = new DatagramPacket(msg.getBytes(), msg.getBytes().length, this.address, this.multicastPort);
     this.socket.send(msgPacket);
+  }
+
+  public void initVerifier(String id, String number) {
+    if ( this.getPeer().initiatorVerifier.get(id).containsKey(number) ) {
+
+    }
+
   }
 }
